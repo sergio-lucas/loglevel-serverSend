@@ -20,6 +20,7 @@ var loglevelServerSend = function(logger,options) {
         _url             = options && options.url || 'http://localhost:8000/main/log',
         _callOriginal    = options && options.callOriginal || false,
         _prefix          = options && options.prefix,
+        _headers         = options && options.headers || {'Content-Type': 'text/plain'},
         _originalFactory = _logger.methodFactory,
         _sendQueue       = [],
         _isSending       = false
@@ -54,7 +55,11 @@ var loglevelServerSend = function(logger,options) {
             req = new XMLHttpRequest()
         
         req.open("POST", _url, true)
-        req.setRequestHeader('Content-Type', 'text/plain')
+        if (_headers) {
+            var entries = Object.entries(_headers);
+
+            entries.map(header => req.setRequestHeader(header[0], header[1]))
+        }
         req.onreadystatechange = function() {
             if(req.readyState == 4) 
             {
