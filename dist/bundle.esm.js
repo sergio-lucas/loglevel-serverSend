@@ -23,52 +23,52 @@ var loglevelServerSend = function(logger,options) {
         _headers         = options && options.headers || {'Content-Type': 'text/plain'},
         _originalFactory = _logger.methodFactory,
         _sendQueue       = [],
-        _isSending       = false
+        _isSending       = false;
     
     _logger.methodFactory = function (methodName, logLevel) {
-        var rawMethod = _originalFactory(methodName, logLevel)
+        var rawMethod = _originalFactory(methodName, logLevel);
     
         return function (message) {
             if (typeof _prefix === 'string')
-                message = _prefix + message
+                message = _prefix + message;
             else if (typeof _prefix === 'function')
-                message = _prefix(methodName,message)
+                message = _prefix(methodName,message);
             else
-                message = methodName + ': ' + message
+                message = methodName + ': ' + message;
                         
             if (_callOriginal) 
-                rawMethod(message)
+                rawMethod(message);
             
-            _sendQueue.push(message)
-            _sendNextMessage()
+            _sendQueue.push(message);
+            _sendNextMessage();
         }
-    }
-    _logger.setLevel(_logger.levels.WARN)
+    };
+    _logger.setLevel(_logger.levels.WARN);
     
     var _sendNextMessage = function(){
         if (!_sendQueue.length || _isSending)
             return
         
-        _isSending = true
+        _isSending = true;
         
         var msg = _sendQueue.shift(),
-            req = new XMLHttpRequest()
+            req = new XMLHttpRequest();
         
-        req.open("POST", _url, true)
+        req.open("POST", _url, true);
         if (_headers) {
             var entries = Object.entries(_headers);
 
-            entries.map(header => req.setRequestHeader(header[0], header[1]))
+            entries.map(header => req.setRequestHeader(header[0], header[1]));
         }
         req.onreadystatechange = function() {
             if(req.readyState == 4) 
             {
-                _isSending = false
-                setTimeout(_sendNextMessage, 0)
+                _isSending = false;
+                setTimeout(_sendNextMessage, 0);
             }
-        }
-        req.send(msg)
-    }
-}
+        };
+        req.send(msg);
+    };
+};
 
 export default loglevelServerSend;
